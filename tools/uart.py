@@ -7,6 +7,7 @@ import time
 from datetime import datetime
 import struct
 from construct import *
+import os
 
 UART_FRAME_STARTCODE = 0xDEADBEEF
 UART_FRAME_SIZE = 8
@@ -98,7 +99,7 @@ class UARTGateway:
         self.write_frame(frame)
 
         response = self.receive_frame()
-        assert(response.type == 0x20000000 | type & 0xffff)
+        assert(response.type == 0x10000000 | 1)
 
     def receive_frame(self):
         reply = b''
@@ -124,7 +125,7 @@ class UARTGateway:
             if (cmdin == UART_FRAME_STARTCODE):
                 frame_data = self.readfull(UartFrame.sizeof())
                 frame = UartFrame.parse(frame_data)
-                self.log("RX Frame: %s" % str(frame))
+                #self.log("RX Frame: %s" % str(frame))
                 return frame
 
 if __name__ == "__main__":
@@ -159,7 +160,6 @@ if __name__ == "__main__":
     if (args.receive):
         ug.receive()
     else:
-        data = 0xcafebabe
         ug.send_frame(UART_COMMAND_HEARTBEAT, data)
         ug.send_frame(UART_COMMAND_HELLOWORLD, data)
-        #ug.receive_timeout(1)  # message to terminal
+        ug.receive_timeout(1)  # message to terminal
